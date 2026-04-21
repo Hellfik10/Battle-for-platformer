@@ -1,74 +1,84 @@
 using UnityEngine;
 
-[RequireComponent (typeof(Mover), typeof(AnimatorController), typeof(CombatSystem))]
-public class Player : MonoBehaviour
+[RequireComponent(typeof(Mover), typeof(CombatSystem), typeof(PlayerAnimatorController))]
+[RequireComponent(typeof(InputService))]
+public class Player : Character
 {
-    [SerializeField] private InputReader _inputReader;
-    [SerializeField] private GroundChecker _groundChecker;
-    [SerializeField] private float _moveSpeed;
-    [SerializeField] private float _jumpForce;
-    [SerializeField] private AnimatorController _animatorController;
+    [Header("Movement Settings")]
+    [SerializeField] private float _speed = 7f;
+    [SerializeField] private float _jumpForce = 12f;
 
-    private CombatSystem _combatSystem;
-    private Flipper _flipper;
+    [Header("Components")]
+    [SerializeField] private GroundChecker _groundChecker;
+
     private Mover _mover;
-    private float _direction;
+    private InputService _inputService;
+    private CombatSystem _combatSystem;
+    private PlayerAnimatorController _animatorController;
+    private StateMachine _stateMachine;
+
+    private Vector2 _moveInput;
 
     private void Awake()
     {
         _mover = GetComponent<Mover>();
-        _animatorController = GetComponent<AnimatorController>();
-        _flipper = GetComponent<Flipper>();
         _combatSystem = GetComponent<CombatSystem>();
+        _animatorController = GetComponent<PlayerAnimatorController>();
+
+        _inputService = GetComponent<InputService>();
+    }
+
+    private void Start()
+    {
+        _inputService.Moved += OnMove;
+        _inputService.Jumped += OnJump;
+        _inputService.Attacked += OnAttack;
+
+        _stateMachine = new StateMachine();
+
+        _stateMachine.AddState(new PlayerIdleState(_stateMachine, _animatorController, _inputService, _combatSystem));
+        _stateMachine.AddState(new PlayerRunState(_stateMachine, _animatorController, _groundChecker, _inputService, _combatSystem));
+        _stateMachine.AddState(new PlayerJumpState(_stateMachine, _animatorController, _mover, _groundChecker, _inputService, _combatSystem));
+        _stateMachine.AddState(new PlayerAttackState(_stateMachine, _animatorController, _inputService, _combatSystem));
+
+        _stateMachine.SetState<PlayerIdleState>();
     }
 
     private void Update()
     {
-        Move();
-        TryAttack();
+        _stateMachine?.Update();
+
+        _mover.Move(_moveInput, _speed);
+    }   
+
+    private void FixedUpdate()
+    {
+        _stateMachine?.FixedUpdate();
     }
 
-    private void Move()
+    private void OnDestroy()
     {
-        _direction = _inputReader.Horizontal;
+        _inputService.Moved -= OnMove;
+        _inputService.Jumped -= OnJump;
+    }
 
-        _mover.SetDirection(_direction);
+    private void OnMove(Vector2 moveInput)
+    {
+        _moveInput = moveInput;
+    }
 
+    private void OnJump()
+    {
         if (_groundChecker.IsGrounded)
         {
-            if (_inputReader.IsJump)
-            {
-                _animatorController.StartJumpAnimation();
-                _mover.Jump(_jumpForce);
-            }
-            else
-            {
-                _animatorController.StopJumpAnimation();
-            }
-
-            if (_direction != 0)
-            {
-                _animatorController.StartRunAnimation();
-            }
-            else
-            {
-                _animatorController.StopRunAnimation();
-            }
-        }
-
-        _mover.Move(_direction, _moveSpeed);
-
-        if (_direction != 0)
-        {
-            _flipper.FlipCharacter(_direction);
+            _mover.Jump(_jumpForce);
         }
     }
 
-    private void TryAttack()
+    private void OnAttack()
     {
-        if (_inputReader.IsAttack && _combatSystem.IsAttacking == false)
+        if (_combatSystem.IsAttacking == false)
         {
-            _animatorController.StartAttackAnimation();
             _combatSystem.Attack();
         }
     }

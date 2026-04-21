@@ -1,21 +1,23 @@
 using UnityEngine;
 
-[RequireComponent(typeof(AcornWallet))]
 public class CollisionDetector : MonoBehaviour
 {
-    private AcornWallet _acornCollector;
+    private VisitorCollector _visitorCollector;
+    private CoinWallet _coinWallet;
+    private Health _health;
 
     private void Awake()
     {
-        _acornCollector = GetComponent<AcornWallet>();
+        _coinWallet = GetComponent<CoinWallet>();
+        _health = GetComponent<Health>();
+        _visitorCollector = new VisitorCollector(_coinWallet, _health);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.TryGetComponent<Acorn>(out Acorn acorn))
+        if (collision.gameObject.TryGetComponent(out IItemable item))
         {
-            acorn.DisableObject();
-            _acornCollector.IncreaseCount();
+            item.Accept(_visitorCollector);
         }
     }
 }

@@ -1,0 +1,23 @@
+using UnityEngine;
+using System.Linq;
+using System.Collections.Generic;
+
+public class PointCollector : MonoBehaviour
+{
+    [SerializeField] private List<Transform> _targetPoints;
+    public List<Transform> TargetPoints => _targetPoints.ToList();
+
+    [ContextMenu("Refresh Child Array")]
+    private void RefreshChildArray()
+    {
+        int pointCount = transform.childCount;
+
+        if (pointCount == 0)
+        {
+            throw new System.Exception("Точки отсутствуют.");
+        }
+
+        for (int i = 0; i < pointCount; i++)
+            _targetPoints.Add(transform.GetChild(i));
+    }
+}

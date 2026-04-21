@@ -1,62 +1,55 @@
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+using System;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(PatrolController))]
-public class Enemy : MonoBehaviour
+[RequireComponent(typeof(Mover))]
+[RequireComponent(typeof(Rotator), typeof(Health), typeof(EnemyAreaViewer))]
+public class Enemy : Character
 {
-    [SerializeField] private float _speed = 10f;
+    [Header("Movement Settings")]
+    [SerializeField] private float _moveSpeed = 5;
+    [SerializeField] private float _timeToIdle = 3f;
 
-    private SpriteRenderer _spriteRenderer;
-    private Transform _point;
-    private PatrolController _patrolController;
-    private float _direction;
-    private Flipper _flipper;
-    private float _health;
+    private PointCollector _patrolPointsCollector;
+    private EnemyAreaViewer _areaViewer;
+    private Rotator _rotator;
+    private Mover _mover;
+    private CombatSystem _combatSystem;
 
-    public Rigidbody2D Rigidbody { get; private set; }
+    private EnemyAnimatorController _animator;
+    private StateMachine _stateMachine;
 
-    public void Awake()
+    private void Awake()
     {
-        Rigidbody = GetComponent<Rigidbody2D>();
-        _patrolController = GetComponent<PatrolController>();
-        _flipper = GetComponent<Flipper>();
+        _areaViewer = GetComponent<EnemyAreaViewer>();
+        _rotator = GetComponent<Rotator>();
+        _mover = GetComponent<Mover>();
+        _combatSystem = GetComponent<CombatSystem>();
+
+        _animator = GetComponent<EnemyAnimatorController>();
+        _stateMachine = new StateMachine();
     }
 
-    private void OnEnable()
+    private void Start()
     {
-        _patrolController.CurrentPointUpdated += SetDirectionToPoint;
+        _stateMachine.AddState(new EnemyAttackState(_stateMachine, _animator, _combatSystem));
+        _stateMachine.AddState(new EnemyChasingState(_stateMachine, _animator, _areaViewer, _mover, _moveSpeed, _combatSystem));
+        _stateMachine.AddState(new EnemyPatrolState(_stateMachine, _patrolPointsCollector, _animator, _mover, _moveSpeed, _areaViewer));
+        _stateMachine.AddState(new EnemyCheckAreaState(_stateMachine, _animator, _timeToIdle, _rotator, _areaViewer));
+        _stateMachine.SetState<EnemyPatrolState>();
     }
 
-    private void OnDisable()
+    private void Update()
     {
-        _patrolController.CurrentPointUpdated -= SetDirectionToPoint;
-    }
-        
-    public void Init(List<Transform> points)
-    {
-        _patrolController.Init(points);
+        _stateMachine.Update();
     }
 
     private void FixedUpdate()
     {
-        Rigidbody.velocity = new Vector2(_direction * _speed, Rigidbody.velocity.y);
+        _stateMachine.FixedUpdate();
     }
 
-    private void SetDirectionToPoint(Transform point)
+    public void Initialize(PointCollector points)
     {
-        _point = point;
-
-        if (_point.position.x < transform.position.x)
-        {
-            _direction = -1;
-        }
-        else
-        {
-            _direction = 1;
-        }
-
-        _flipper.FlipCharacter(_direction);
+        _patrolPointsCollector = points;
     }
 }
