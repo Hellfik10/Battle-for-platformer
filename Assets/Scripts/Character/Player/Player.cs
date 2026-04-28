@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Mover), typeof(CombatSystem), typeof(PlayerAnimatorController))]
-[RequireComponent(typeof(InputService))]
+[RequireComponent(typeof(InputService), typeof(Health))]
 public class Player : Character
 {
     [Header("Movement Settings")]
@@ -16,6 +16,7 @@ public class Player : Character
     private CombatSystem _combatSystem;
     private PlayerAnimatorController _animatorController;
     private StateMachine _stateMachine;
+    private Health _health;
 
     private Vector2 _moveInput;
 
@@ -24,6 +25,7 @@ public class Player : Character
         _mover = GetComponent<Mover>();
         _combatSystem = GetComponent<CombatSystem>();
         _animatorController = GetComponent<PlayerAnimatorController>();
+        _health = GetComponent<Health>();
 
         _inputService = GetComponent<InputService>();
     }
@@ -33,6 +35,8 @@ public class Player : Character
         _inputService.Moved += OnMove;
         _inputService.Jumped += OnJump;
         _inputService.Attacked += OnAttack;
+
+        _health.Died += OnDie;
 
         _stateMachine = new StateMachine();
 
@@ -60,6 +64,8 @@ public class Player : Character
     {
         _inputService.Moved -= OnMove;
         _inputService.Jumped -= OnJump;
+
+        _health.Died -= OnDie;
     }
 
     private void OnMove(Vector2 moveInput)
@@ -81,5 +87,10 @@ public class Player : Character
         {
             _combatSystem.Attack();
         }
+    }
+
+    private void OnDie()
+    {
+
     }
 }

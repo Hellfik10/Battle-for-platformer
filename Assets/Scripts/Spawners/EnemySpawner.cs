@@ -17,11 +17,6 @@ public class EnemySpawner : MonoBehaviour
         {
             var newEnemy = Instantiate(prefab, _spawnArea[i].SpawnPoint.position, Quaternion.identity);
             newEnemy.Initialize(_spawnArea[i].PointCollector);
-
-            if (newEnemy.TryGetComponent(out Health enemy))
-            {
-                enemy.HealthEnded += DisableObject;
-            }
         }
     }
 

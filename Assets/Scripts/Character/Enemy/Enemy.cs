@@ -14,6 +14,7 @@ public class Enemy : Character
     private Rotator _rotator;
     private Mover _mover;
     private CombatSystem _combatSystem;
+    private Health _health;
 
     private EnemyAnimatorController _animator;
     private StateMachine _stateMachine;
@@ -24,6 +25,7 @@ public class Enemy : Character
         _rotator = GetComponent<Rotator>();
         _mover = GetComponent<Mover>();
         _combatSystem = GetComponent<CombatSystem>();
+        _health = GetComponent<Health>();
 
         _animator = GetComponent<EnemyAnimatorController>();
         _stateMachine = new StateMachine();
@@ -31,6 +33,8 @@ public class Enemy : Character
 
     private void Start()
     {
+        _health.Died += OnDie;
+
         _stateMachine.AddState(new EnemyAttackState(_stateMachine, _animator, _combatSystem));
         _stateMachine.AddState(new EnemyChasingState(_stateMachine, _animator, _areaViewer, _mover, _moveSpeed, _combatSystem));
         _stateMachine.AddState(new EnemyPatrolState(_stateMachine, _patrolPointsCollector, _animator, _mover, _moveSpeed, _areaViewer));
@@ -51,5 +55,10 @@ public class Enemy : Character
     public void Initialize(PointCollector points)
     {
         _patrolPointsCollector = points;
+    }
+
+    private void OnDie()
+    {
+        Destroy(gameObject);
     }
 }

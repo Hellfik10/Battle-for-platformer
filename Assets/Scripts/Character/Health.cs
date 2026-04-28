@@ -7,8 +7,10 @@ public class Health : MonoBehaviour
 
     private float _minValue = 0;
 
+    public event Action Died;
+    public event Action<float> ChangedValue;
     public float CurrentValue { get; private set; }
-    public bool IsDead => CurrentValue <= 0;
+    public float MaxValue => _maxValue;
 
     public void Awake()
     {
@@ -21,13 +23,12 @@ public class Health : MonoBehaviour
         {
             CurrentValue += count;
             CurrentValue = Mathf.Clamp(CurrentValue, _minValue, _maxValue);
+            ChangedValue?.Invoke(CurrentValue);
         }
     }
 
-    public void TakeDamage(float damage)
+    public void DecreaseHealth(float damage)
     {
-        Debug.Log("Ouch");
-
         if (damage > 0)
         {
             CurrentValue -= damage;
@@ -35,13 +36,10 @@ public class Health : MonoBehaviour
             if (CurrentValue <= 0)
             {
                 CurrentValue = 0;
-                Die();
+                Died?.Invoke();
             }
-        }
-    }
 
-    public void Die()
-    {
-        Destroy(gameObject);
+            ChangedValue?.Invoke(CurrentValue);
+        }
     }
 }

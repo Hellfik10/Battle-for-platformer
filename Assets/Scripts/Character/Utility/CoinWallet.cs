@@ -1,5 +1,6 @@
 using UnityEngine;
 
+
 public class CoinWallet : MonoBehaviour
 {
     private int _count = 0;

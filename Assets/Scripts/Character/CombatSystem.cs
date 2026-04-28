@@ -32,7 +32,7 @@ public class CombatSystem : MonoBehaviour
         {
             if (enemy.TryGetComponent<Health>(out var enemyHealth))
             {
-                enemyHealth.TakeDamage(_damage);
+                enemyHealth.DecreaseHealth(_damage);
             }
         }
     }
