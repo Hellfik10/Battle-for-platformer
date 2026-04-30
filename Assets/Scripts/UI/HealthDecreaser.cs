@@ -6,6 +6,6 @@ public class HealthDecreaser : HealthChanger
 
     public override void ChangeValue()
     {
-        Health.DecreaseHealth(_value);
+        Health.TakeDamage(_value);
     }
 }

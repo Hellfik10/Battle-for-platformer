@@ -11,6 +11,7 @@ public class InputService : MonoBehaviour
     public event Action<Vector2> Moved;
     public event Action Attacked;
     public event Action Jumped;
+    public event Action FirstAbilityUsed;
 
     public Vector3 MoveDirection => _moveInput;
 
@@ -29,6 +30,7 @@ public class InputService : MonoBehaviour
         _inputSystem.Player.Jump.started += OnJump;
         _inputSystem.Player.Jump.canceled += OnJump;
         _inputSystem.Player.Attack.performed += OnAttack;
+        _inputSystem.Player.Ability1.performed += OnFirstAbility;
     }
 
     private void Update()
@@ -46,6 +48,7 @@ public class InputService : MonoBehaviour
         _inputSystem.Player.Jump.started -= OnJump;
         _inputSystem.Player.Jump.canceled -= OnJump;
         _inputSystem.Player.Attack.performed -= OnAttack;
+        _inputSystem.Player.Ability1.performed -= OnFirstAbility;
     }
 
     private void OnMove(InputAction.CallbackContext context)
@@ -63,5 +66,10 @@ public class InputService : MonoBehaviour
     private void OnAttack(InputAction.CallbackContext context)
     {
         Attacked?.Invoke();
+    }
+
+    private void OnFirstAbility(InputAction.CallbackContext context)
+    {
+        FirstAbilityUsed?.Invoke();
     }
 }

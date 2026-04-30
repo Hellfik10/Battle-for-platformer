@@ -16,6 +16,6 @@ public class VisitorCollector : IVisitor
 
     public void Visit(FirstAidKit firstAidKit)
     {
-        _health.IncreaseHealth(firstAidKit.HealthRecoveryCount);
+        _health.Heal(firstAidKit.HealthRecoveryCount);
     }
 }

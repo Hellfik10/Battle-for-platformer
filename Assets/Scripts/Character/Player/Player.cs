@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Mover), typeof(CombatSystem), typeof(PlayerAnimatorController))]
@@ -10,6 +11,9 @@ public class Player : Character
 
     [Header("Components")]
     [SerializeField] private GroundChecker _groundChecker;
+
+    [Header("Abilities")]
+    [SerializeField] private Vampirism _vampirism;
 
     private Mover _mover;
     private InputService _inputService;
@@ -35,6 +39,7 @@ public class Player : Character
         _inputService.Moved += OnMove;
         _inputService.Jumped += OnJump;
         _inputService.Attacked += OnAttack;
+        _inputService.FirstAbilityUsed += OnFirstAbility;
 
         _health.Died += OnDie;
 
@@ -87,6 +92,11 @@ public class Player : Character
         {
             _combatSystem.Attack();
         }
+    }
+
+    private void OnFirstAbility()
+    {
+        _vampirism.Activate();
     }
 
     private void OnDie()

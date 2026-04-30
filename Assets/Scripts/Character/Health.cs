@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Health : MonoBehaviour
+public class Health : MonoBehaviour, IDamageable
 {
     [SerializeField] private float _maxValue = 100;
 
@@ -17,7 +17,7 @@ public class Health : MonoBehaviour
         CurrentValue = _maxValue;
     }
 
-    public void IncreaseHealth(float count)
+    public void Heal(float count)
     {
         if (count > 0)
         {
@@ -27,7 +27,7 @@ public class Health : MonoBehaviour
         }
     }
 
-    public void DecreaseHealth(float damage)
+    public void TakeDamage(float damage)
     {
         if (damage > 0)
         {

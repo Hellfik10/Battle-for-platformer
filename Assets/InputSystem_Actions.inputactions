@@ -88,9 +88,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "dsas",
+                    "name": "Ability1",
                     "type": "Button",
-                    "id": "59ca4700-9603-4529-8490-840e62a30573",
+                    "id": "99f18c6a-1687-40cf-887e-3b3d1821e5b2",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -485,12 +485,12 @@
                 },
                 {
                     "name": "",
-                    "id": "31a79650-65c8-40b1-8e8f-577ea5211267",
-                    "path": "<Keyboard>/#(\\)",
+                    "id": "626da4a3-e469-45a6-a314-c16edc9eb0c7",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "dsas",
+                    "action": "Ability1",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
